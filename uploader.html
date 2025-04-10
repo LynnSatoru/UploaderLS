@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UploaderLS - Files Uploaders</title>
+  <meta name="description" content="Uploaders Files To Url for free and API for developers users made by LynnSatoru" />
+  <meta name="author" content="LynnSatoru" />
+  <link rel="icon" href="/cloud.svg" type="image/svg+xml">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-thumb { background: #555; border-radius: 10px; }
+    #toast { display: none; }
+  </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="flex items-center justify-between px-6 py-4 border-b border-gray-700">
+    <div class="flex items-center gap-3 cursor-pointer" onclick="location.reload()">
+      <img src="cloud.svg" alt="Cloud Logo" class="w-8 h-8">
+      <h1 class="text-xl font-bold">UploaderLS</h1>
+    </div>
+    <button onclick="toggleTheme()" class="text-white bg-gray-700 hover:bg-gray-600 rounded px-3 py-1 text-sm">🌓 Theme</button>
+  </header>
+
+  <!-- Main Upload Section -->
+  <main class="flex-1 flex flex-col items-center justify-center px-6 py-12">
+    <div class="w-full max-w-xl bg-gray-800 rounded-lg shadow-lg p-6 space-y-4">
+      <h2 class="text-2xl font-semibold text-center">Upload File / File Uploader</h2>
+
+      <form id="uploadForm" action="upload.php" method="post" enctype="multipart/form-data" class="space-y-4">
+        <input type="file" name="file" id="fileInput" required
+          class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-sm">
+        <button type="submit"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded">Upload Sekarang</button>
+      </form>
+
+      <!-- Preview -->
+      <div id="previewBox" class="hidden border border-gray-600 p-3 rounded bg-gray-700">
+        <p class="text-sm mb-2 font-semibold">Preview:</p>
+        <img id="previewImage" src="#" alt="Preview" class="max-h-48 rounded">
+      </div>
+    </div>
+
+    <!-- Notifikasi Toast -->
+    <div id="toast"
+      class="fixed top-6 right-6 bg-gray-800 border border-green-500 rounded-lg shadow-xl p-4 w-96 z-50">
+      <h3 class="text-lg font-bold text-green-400 flex items-center mb-1">✅ Upload Berhasil!</h3>
+      <p class="text-sm mb-2">File berhasil diunggah. Link file:</p>
+      <div class="flex gap-2">
+        <input type="text" id="fileUrl" readonly
+          class="flex-1 bg-gray-700 border border-gray-600 rounded p-1 text-sm text-white" />
+        <button onclick="copyUrl()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-sm rounded">Salin</button>
+      </div>
+      <button onclick="hideToast()" class="text-red-400 mt-3 text-sm hover:underline">Tutup</button>
+    </div>
+  </main>
+
+  <!-- Footer -->
+ <!-- Footer -->
+<footer class="text-center text-sm text-gray-500 p-4 border-t border-gray-700">
+  Dibuat oleh <span class="font-semibold text-white">LynnSatoru</span> • UploaderLS
+
+  <!-- Histats -->
+  <div class="mt-2 flex justify-center">
+    <!-- Histats.com START (html only)-->
+    <a href="/" alt="page hit counter" target="_blank">
+      <embed src="//s10.histats.com/14.swf" flashvars="jver=1&acsid=4942769&domi=4" quality="high"
+        width="200" height="40" name="14.swf" align="middle" type="application/x-shockwave-flash"
+        pluginspage="//www.macromedia.com/go/getflashplayer" wmode="transparent" />
+    </a>
+    <img src="//sstatic1.histats.com/0.gif?4942769&101" alt="" border="0">
+    <!-- Histats.com END -->
+  </div>
+</footer>
+
+
+  <!-- Script -->
+  <script>
+    // Theme Toggle
+    function toggleTheme() {
+      document.documentElement.classList.toggle('dark');
+    }
+
+    // Preview Image
+    document.getElementById('fileInput').addEventListener('change', function (event) {
+      const file = event.target.files[0];
+      const previewBox = document.getElementById('previewBox');
+      const previewImage = document.getElementById('previewImage');
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          previewImage.src = e.target.result;
+          previewBox.classList.remove('hidden');
+        }
+        reader.readAsDataURL(file);
+      } else {
+        previewBox.classList.add('hidden');
+      }
+    });
+
+    // JSON Response Handler
+    document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const res = await fetch('upload.php', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        const toast = document.getElementById('toast');
+        document.getElementById('fileUrl').value = data.result.url;
+        toast.style.display = 'block';
+      }
+    });
+
+    function hideToast() {
+      document.getElementById('toast').style.display = 'none';
+    }
+
+    function copyUrl() {
+      const url = document.getElementById('fileUrl');
+      url.select();
+      document.execCommand('copy');
+      alert("✅ URL tersalin!");
+    }
+  </script>
+</body>
+</html>
